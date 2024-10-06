@@ -36,6 +36,9 @@ struct MEMORY_BLOCK adjust_memory(int fit_index, struct MEMORY_BLOCK memory_map[
 struct MEMORY_BLOCK add_process(int fit_index, struct MEMORY_BLOCK memory_map[MAPMAX], int *map_cnt, int request_size, int process_id, int excess_space) {
     memory_map[fit_index].process_id = process_id;
     // Checks if the fit is perfect if it is just replace the PID of the empty block with the new memory block
+    if (fit_index == -1) {
+        return NULLBLOCK;
+    }
     if (excess_space == 0){
         return memory_map[fit_index];
     }
@@ -50,7 +53,7 @@ struct MEMORY_BLOCK add_process(int fit_index, struct MEMORY_BLOCK memory_map[MA
 /// Best Fit Allocate
 
 struct MEMORY_BLOCK best_fit_allocate(int request_size, struct MEMORY_BLOCK memory_map[MAPMAX], int *map_cnt, int process_id) {
-    int best_fit_index = 100000000;
+    int best_fit_index = -1;
     int best_fit_excess_space = 100000000;
     // Searches for best fit/the least excess space
     for(int i = 0; i < *map_cnt; i++) {
@@ -79,6 +82,9 @@ struct MEMORY_BLOCK first_fit_allocate(int request_size, struct MEMORY_BLOCK mem
             break;
         }
     }
+    if (fit_index == -1) {
+        return NULLBLOCK;
+    }
     return add_process(fit_index, memory_map, map_cnt, request_size, process_id, excess_space);
 }
 
@@ -97,6 +103,9 @@ struct MEMORY_BLOCK worst_fit_allocate(int request_size, struct MEMORY_BLOCK mem
             worst_fit_index = i;
             most_excess_space = excess_space;
         }
+    }
+    if (worst_fit_index == -1) {
+        return NULLBLOCK;
     }
     return add_process(worst_fit_index, memory_map, map_cnt, request_size, process_id, most_excess_space);
 }
@@ -152,24 +161,3 @@ void release_memory(struct MEMORY_BLOCK freed_block, struct MEMORY_BLOCK memory_
         remove_block(memory_map, map_cnt, freed_index);
     }
 }
-
-
-
-
-
-// int main() {
-//     struct MEMORY_BLOCK a = {0, 1023, 1024, 0};
-//     struct MEMORY_BLOCK memory_map[MAPMAX];
-//     memory_map[0] = a;
-//     int cnt = 1;
-//     int *map_cnt = &cnt;
-//     int request_size = 10;
-//     int process_id = 32;
-//     struct MEMORY_BLOCK cur = best_fit_allocate(request_size, memory_map, map_cnt, process_id);
-//     printf("\nmemory_map: \n");
-//     for (int i = 0; i < *map_cnt; i++) {
-//         print_mb(memory_map[i]);
-//     }
-//     printf("\nmap_cnt: %d\n", *map_cnt);
-//     print_mb(cur);
-// }
